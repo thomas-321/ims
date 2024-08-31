@@ -19,3 +19,8 @@ pub struct User {
     // TODO: last interaction time to remove login_keys for inactive users
 }
 
+// required json payload to log a user out
+#[derive(Deserialize)]
+pub struct LogoutPayload {
+    pub login_key: String,
+}
