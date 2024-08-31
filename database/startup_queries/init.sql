@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS roles (
     create_articles BOOLEAN NOT NULL,
     delete_articles BOOLEAN NOT NULL,
     read_articles BOOLEAN NOT NULL,
-    create_ quotations BOOLEAN NOT NULL,
+    create_quotations BOOLEAN NOT NULL,
     delete_quotations BOOLEAN NOT NULL,
     read_quotations BOOLEAN NOT NULL,
     edit_roles BOOLEAN NOT NULL
