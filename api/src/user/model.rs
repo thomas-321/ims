@@ -60,3 +60,9 @@ pub struct LoginPayload {
 pub struct LogoutPayload {
     pub login_key: String,
 }
+
+// required json payload to check if a user is logged in
+#[derive(Deserialize)]
+pub struct IsLoggedInPayload {
+    pub login_key: String,
+}

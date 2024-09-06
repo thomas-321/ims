@@ -7,6 +7,7 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(create);
     cfg.service(login);
     cfg.service(logout);
+    cfg.service(checkauth);
 }
 
 // create user - only by admins
@@ -98,3 +99,20 @@ async fn logout(json_payload: web::Json<model::LogoutPayload>) -> impl Responder
 
 
 
+#[get("/user/checkauth")]
+async fn checkauth(json_payload: web::Json<model::IsLoggedInPayload>) -> impl Responder {
+    let mut users = match model::LOGGED_IN_USERS.lock() {
+        Ok(guard) => guard,
+        Err(_) => return HttpResponse::InternalServerError().json(json!(
+                    {"status": "failed", "message": "Internal server error"}))
+    };
+
+    for user in users.iter() {
+        if user.login_key == json_payload.login_key {
+            return HttpResponse::Ok().json(json!(
+                    {"status": "success", "message": "You are succesfuly authenticated"}));
+        }
+    }
+    
+    HttpResponse::NotFound().json(json!({"status": "failed", "message": "You are not authenticated"}))
+}
