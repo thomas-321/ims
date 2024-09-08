@@ -1,4 +1,4 @@
-use actix_web::{get, web, Responder, HttpResponse};
+use actix_web::{post, web, Responder, HttpResponse};
 use serde_json::json;
 use api_models::user::model::{AuthKeyPayload, CreateUserPayload, LoginPayload, User};
 use super::helpers;
@@ -10,7 +10,7 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
 }
 
 // create user - only by admins
-#[get("/user/create")]
+#[post("/user/create")]
 async fn create(json_payload: web::Json<CreateUserPayload>) -> impl Responder {
     match helpers::validate_create_user_payload(&json_payload) {
         Ok(_) => (),
@@ -26,7 +26,7 @@ async fn create(json_payload: web::Json<CreateUserPayload>) -> impl Responder {
     }
 }
 
-#[get("/user/login")]
+#[post("/user/login")]
 async fn login(json_payload: web::Json<LoginPayload>) -> impl Responder {
 
 
@@ -68,7 +68,7 @@ async fn login(json_payload: web::Json<LoginPayload>) -> impl Responder {
          "login_key": users.last().unwrap().login_key}))
 }
 
-#[get("/user/logout")]
+#[post("/user/logout")]
 async fn logout(json_payload: web::Json<AuthKeyPayload>) -> impl Responder {
     let mut users = match helpers::LOGGED_IN_USERS.lock() {
         Ok(guard) => guard,
@@ -87,7 +87,7 @@ async fn logout(json_payload: web::Json<AuthKeyPayload>) -> impl Responder {
 
 
 
-#[get("/user/checkauth")]
+#[post("/user/checkauth")]
 async fn checkauth(json_payload: web::Json<AuthKeyPayload>) -> impl Responder {
     let users = match helpers::LOGGED_IN_USERS.lock() {
         Ok(guard) => guard,

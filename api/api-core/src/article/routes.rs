@@ -1,13 +1,12 @@
+use actix_web::{post, web, Responder, HttpResponse};
 
-use actix_web::{get, web, Responder, HttpResponse};
 
-
-#[get("/article/create")]
+#[post("/article/create")]
 async fn create() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }
 
-#[get("/article/delete")]
+#[post("/article/delete")]
 async fn delete() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }

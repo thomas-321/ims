@@ -1,18 +1,18 @@
 
-use actix_web::{get, web, Responder, HttpResponse};
+use actix_web::{post, web, Responder, HttpResponse};
 
-#[get("/role/change")]
+#[post("/role/change")]
 async fn change() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }
 
-// create user - only by admins
-#[get("/role/create")]
+// create role - only by admins
+#[post("/role/create")]
 async fn create() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }
 
-#[get("/role/delete")]
+#[post("/role/delete")]
 async fn delete() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }
