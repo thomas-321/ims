@@ -1,5 +1,6 @@
 use serde::{Serialize, Deserialize};
 
+#[derive(Debug, Clone)]
 pub struct User {
     pub user_id: i32,
     pub firstname: String,
@@ -25,10 +26,8 @@ pub struct DBUser {
 pub struct CreateUserPayload {
     pub firstname: String,
     pub lastname: String,
-    pub role: String,
     pub email: String,
     pub password: String,
-    pub login_key: String    // a key given to a user after logging in to identify the user
 }
 
 #[derive(Deserialize)]

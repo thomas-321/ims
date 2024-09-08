@@ -1,10 +1,7 @@
 use actix_web::{get, web, Responder, HttpResponse};
 use serde_json::json;
 use api_models::user::model::{AuthKeyPayload, CreateUserPayload, LoginPayload, User};
-use crate::error::ApiError;
-
 use super::helpers;
-// use crate ::error;
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(create);
@@ -15,21 +12,11 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
 // create user - only by admins
 #[get("/user/create")]
 async fn create(json_payload: web::Json<CreateUserPayload>) -> impl Responder {
-    match helpers::is_logged_in(&json_payload.login_key) {
-        Ok(value) => value,
-        Err(ApiError::InvalidLoginKey) => return HttpResponse::Unauthorized().json(json!(
-                {"status": "failed", "message": "You are not authenticated"})),
-        Err(_) => return HttpResponse::InternalServerError().json(json!(
-                {"status": "failed", "message": "Internal server error"}))
-    };
-
     match helpers::validate_create_user_payload(&json_payload) {
         Ok(_) => (),
         Err(e) => return HttpResponse::BadRequest().json(json!(
                 {"status": "failed", "message": e.to_string()}))
     }
-
-    // TODO: chech if user is allowed to create users
 
     match helpers::create_user(&json_payload).await {
         Ok(_) => HttpResponse::Ok().json(json!(

@@ -1,17 +1,18 @@
 USE test;
 
 -- Inserting test data into roles table
-INSERT INTO test.roles (role, create_articles, delete_articles, read_articles, create_quotations, delete_quotations, read_quotations, edit_roles) VALUES
-('Admin', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-('Editor', TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE),
-('Viewer', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE),
-('Sales', FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE),
-('Manager', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-('Guest', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE),
-('Support', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE),
-('Content Creator', TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE),
-('Quality Assurance', TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE),
-('HR', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE);
+INSERT INTO test.roles (role, create_articles, delete_articles, read_articles, create_quotations, delete_quotations, read_quotations, can_edit_roles, can_edit_users) VALUES
+('Admin', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
+('New_User', FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE, FALSE),
+('Editor', TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+('Viewer', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+('Sales', FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE),
+('Manager', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE),
+('Guest', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+('Support', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+('Content Creator', TRUE, FALSE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+('Quality Assurance', TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+('HR', FALSE, FALSE, TRUE, FALSE, FALSE, TRUE, TRUE, True);
 
 
 INSERT INTO test.users (firstname, lastname, role_id, email, password) VALUES

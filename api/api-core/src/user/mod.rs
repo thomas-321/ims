@@ -1,4 +1,4 @@
 mod routes;
-mod helpers;
+pub mod helpers;
 
 pub use routes::init_routes;

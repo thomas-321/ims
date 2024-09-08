@@ -23,7 +23,8 @@ pub async fn init_roles() -> Result<(), ApiError> {
                     create_quotations as `create_quotations: bool`,
                     delete_quotations as `delete_quotations: bool`,
                     read_quotations as `read_quotations: bool`,
-                    edit_roles as `edit_roles: bool`
+                    can_edit_roles as `can_edit_roles: bool`,
+                    can_edit_users as `can_edit_users: bool`
                     FROM roles"#)
     .fetch_all(&*db)
     .await;
@@ -58,5 +59,36 @@ pub async fn init_roles() -> Result<(), ApiError> {
     }
 
     Ok(())
+}
+
+pub fn get_role_copy(rolename: &str) -> Result<Role, ApiError> {
+    let roles = match ROLES.lock() {
+        Ok(guard) => guard,
+        Err(_) => return Err(ApiError::RolesLockFailed)
+    };  
+
+    for role in roles.iter() {
+        if rolename == role.role {
+            return Ok(role.clone());
+        }
+    }
+
+    return Err(ApiError::InvalidRole);
+}
+
+pub fn get_user_role_from_login_key(login_key: &String) -> Result<Role, ApiError> {
+    let user_role = match user_helpers::get_user_role(&login_key) {
+        Ok(value) => value,
+        Err(ApiError::LoggedInUserLockFailed) => { return Err(ApiError::LoggedInUserLockFailed); }
+        Err(ApiError::InvalidLoginKey) =>        { return Err(ApiError::InvalidLoginKey); }
+        Err(_) =>                                { return Err(ApiError::UnknownError); }
+    };
+
+    match get_role_copy(&user_role) {
+        Ok(value) => Ok(value),
+        Err(ApiError::RolesLockFailed) => return Err(ApiError::RolesLockFailed),
+        Err(ApiError::InvalidRole) =>     return Err(ApiError::InvalidRole),
+        Err(_) =>                         return Err(ApiError::UnknownError),
+    }
 }
 

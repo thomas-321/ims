@@ -34,8 +34,6 @@ pub fn validate_create_user_payload(payload: &CreateUserPayload) -> Result<(), A
         return Err(ApiError::LastnameTooShort);
     }
 
-
-
     return Ok(());
 }
 
@@ -46,10 +44,9 @@ pub async fn create_user(user_payload: &CreateUserPayload) -> Result<(), ApiErro
     
     let result = sqlx::query!(
         r#"INSERT INTO users (firstname, lastname, role_id, email, password) 
-           VALUES (?, ?, (SELECT role_id from roles where role = ?), ?, ?)"#,
+           VALUES (?, ?, (SELECT role_id from roles where role = "New_User"), ?, ?)"#,
         &user_payload.firstname,
         &user_payload.lastname,
-        &user_payload.role,
         &user_payload.email,
         &user_payload.password,
     )
@@ -111,3 +108,26 @@ pub fn generate_login_key() -> String {
     key
 }
 
+pub fn get_user_copy(login_key: &String) -> Result<User, ApiError> {
+    let users = match LOGGED_IN_USERS.lock() {
+        Ok(guard) => guard,
+        Err(_) => return Err(ApiError::LoggedInUserLockFailed)
+    };
+
+    match users.iter().find(|x| x.login_key == *login_key) {
+        Some(value) =>  Ok(value.clone()),
+        None => Err(ApiError::InvalidLoginKey)
+    }
+}
+
+pub fn get_user_role(login_key: &String) -> Result<String, ApiError> {
+    let users = match LOGGED_IN_USERS.lock() {
+        Ok(guard) => guard,
+        Err(_) => return Err(ApiError::LoggedInUserLockFailed)
+    };
+
+    match users.iter().find(|x| x.login_key == *login_key) {
+        Some(value) =>  Ok(value.role.clone()),
+        None => Err(ApiError::InvalidLoginKey)
+    }
+}

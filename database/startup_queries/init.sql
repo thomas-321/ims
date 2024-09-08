@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS roles (
     create_quotations BOOLEAN NOT NULL,
     delete_quotations BOOLEAN NOT NULL,
     read_quotations BOOLEAN NOT NULL,
-    edit_roles BOOLEAN NOT NULL
+    can_edit_roles BOOLEAN NOT NULL,
+    can_edit_users BOOLEAN NOT NULL
 );
 
 -- Creating the companys table
