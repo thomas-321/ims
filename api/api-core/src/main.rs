@@ -23,6 +23,7 @@ async fn main() -> std::io::Result<()> {
         .expect("DATABASE_URL must be set");
 
     database::init_pool(&database_url).await.expect("Database must be initialized");
+    role::init_roles().await.expect("Roles must be initialized");
 
     HttpServer::new(move || {
         App::new()
