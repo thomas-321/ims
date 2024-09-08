@@ -4,6 +4,7 @@ use std::env;
 use dotenv::dotenv;
 
 mod database;
+mod error;
 mod user;
 mod role;
 mod article;

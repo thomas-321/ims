@@ -1,22 +1,4 @@
-
-use std::sync::{Arc, Mutex, LazyLock};
-use serde::Deserialize;
-use crate::database;
-
-// holds all loged-in users
-pub static LOGGED_IN_USERS: LazyLock<Arc<Mutex<Vec<User>>>> = LazyLock::new(|| {
-    Arc::new(Mutex::new(Vec::new()))
-});
-
-pub enum Error {
-    UserAlreadyExists,
-    InvalidPassword,
-    InvalidLoginKey,
-    InvalidRole,
-    LoggedInUserLockFailed,
-    FirstnameTooShort,
-    LastnameTooShort,
-}
+use serde::{Serialize, Deserialize};
 
 pub struct User {
     pub user_id: i32,
@@ -55,14 +37,7 @@ pub struct LoginPayload {
     pub password: String,
 }
 
-// required json payload to log a user out
-#[derive(Deserialize)]
-pub struct LogoutPayload {
-    pub login_key: String,
-}
-
-// required json payload to check if a user is logged in
-#[derive(Deserialize)]
-pub struct IsLoggedInPayload {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthKeyPayload {
     pub login_key: String,
 }

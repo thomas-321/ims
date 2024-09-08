@@ -1,13 +1,19 @@
+use std::sync::{Arc, Mutex, LazyLock};
 use rand::{Rng, thread_rng, distributions::Alphanumeric};
 use sqlx;
 
-use super::model::{self, DBUser, LoginPayload};
+use api_models::user::model::{User, DBUser, LoginPayload, CreateUserPayload};
 use crate::database;
+use crate::error::ApiError;
 
-pub fn is_logged_in(login_key: &String) -> Result<bool, model::Error> {
-    let users = match model::LOGGED_IN_USERS.lock() {
+pub static LOGGED_IN_USERS: LazyLock<Arc<Mutex<Vec<User>>>> = LazyLock::new(|| {
+    Arc::new(Mutex::new(Vec::new()))
+});
+
+pub fn is_logged_in(login_key: &String) -> Result<bool, ApiError> {
+    let users = match LOGGED_IN_USERS.lock() {
         Ok(guard) => guard,
-        Err(_) => return Err(model::Error::LoggedInUserLockFailed)
+        Err(_) => return Err(ApiError::LoggedInUserLockFailed)
     };
 
     for user in users.iter() {
@@ -19,13 +25,13 @@ pub fn is_logged_in(login_key: &String) -> Result<bool, model::Error> {
     return Ok(false);
 }
 
-pub fn validate_create_user_payload(payload: &model::CreateUserPayload) -> Result<(), model::Error> {
+pub fn validate_create_user_payload(payload: &CreateUserPayload) -> Result<(), ApiError> {
     if payload.firstname.len() < 2 {
-        return Err(model::Error::FirstnameTooShort);
+        return Err(ApiError::FirstnameTooShort);
     }
 
     if payload.lastname.len() < 2 {
-        return Err(model::Error::LastnameTooShort);
+        return Err(ApiError::LastnameTooShort);
     }
 
 
@@ -33,19 +39,9 @@ pub fn validate_create_user_payload(payload: &model::CreateUserPayload) -> Resul
     return Ok(());
 }
 
-pub fn get_error_string(error: model::Error) -> String {
-    match error {
-        model::Error::UserAlreadyExists => "User already exists".to_string(),
-        model::Error::InvalidPassword => "Invalid password".to_string(),
-        model::Error::InvalidLoginKey => "Invalid login key".to_string(),
-        model::Error::InvalidRole => "Invalid role".to_string(),
-        model::Error::FirstnameTooShort => "Firstname is too short".to_string(),
-        model::Error::LastnameTooShort => "Lastname is too short".to_string(),
-        model::Error::LoggedInUserLockFailed => "Failed to lock logged in users".to_string(),
-    }
-}
 
-pub async fn create_user(user_payload: &model::CreateUserPayload) -> Result<(), model::Error> {
+
+pub async fn create_user(user_payload: &CreateUserPayload) -> Result<(), ApiError> {
     let db = database::get_pool().await;
     
     let result = sqlx::query!(
@@ -65,18 +61,18 @@ pub async fn create_user(user_payload: &model::CreateUserPayload) -> Result<(), 
         Ok(_) => Ok(()),
         Err(e) => {
             if e.to_string().contains("Column 'role_id' cannot be null") {
-                return Err(model::Error::InvalidRole);
+                return Err(ApiError::InvalidRole);
             }
-            return Err(model::Error::UserAlreadyExists);
+            return Err(ApiError::UserAlreadyExists);
         }
     }
 }
 
-pub async fn check_credentials (json_payload: &LoginPayload) -> Result<DBUser, model::Error> {
+pub async fn check_credentials (json_payload: &LoginPayload) -> Result<DBUser, ApiError> {
     let db = database::get_pool().await;
 
     let result = sqlx::query_as!(
-        model::DBUser,
+        DBUser,
         r#"SELECT users.user_id, users.firstname, users.lastname, roles.role, users.email, users.password FROM users JOIN roles ON users.role_id = roles.role_id 
            WHERE email = ? AND password = ?"#,
         &json_payload.email,
@@ -86,7 +82,7 @@ pub async fn check_credentials (json_payload: &LoginPayload) -> Result<DBUser, m
 
     match result {
         Ok(user) => Ok(user),
-        Err(_) => Err(model::Error::InvalidPassword),
+        Err(_) => Err(ApiError::InvalidPassword),
     }
 
 }

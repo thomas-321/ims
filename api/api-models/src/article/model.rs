@@ -1,5 +1,7 @@
+// use serde::{Serialize, Deserialize};
 
-struct Article {
+#[derive(Debug)] 
+struct _Article {
     article_id: i32,
     article_number: String,
     description: String,

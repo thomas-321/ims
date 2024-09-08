@@ -3,12 +3,12 @@ use actix_web::{get, web, Responder, HttpResponse};
 
 
 #[get("/article/create")]
-async fn create(name: web::Path<String>) -> impl Responder {
+async fn create() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }
 
 #[get("/article/delete")]
-async fn delete(name: web::Path<String>) -> impl Responder {
+async fn delete() -> impl Responder {
     HttpResponse::Ok().body("Hello!")
 }
 

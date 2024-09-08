@@ -1,4 +1,3 @@
-pub mod model;
 mod routes;
 mod helpers;
 
