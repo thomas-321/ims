@@ -1,8 +1,10 @@
 use actix_web::{get, web, Responder, HttpResponse};
 use serde_json::json;
 use api_models::user::model::{AuthKeyPayload, CreateUserPayload, LoginPayload, User};
+use crate::error::ApiError;
+
 use super::helpers;
-use crate ::error;
+// use crate ::error;
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(create);
@@ -13,21 +15,18 @@ pub fn init_routes(cfg: &mut web::ServiceConfig) {
 // create user - only by admins
 #[get("/user/create")]
 async fn create(json_payload: web::Json<CreateUserPayload>) -> impl Responder {
-    let logged_in = match helpers::is_logged_in(&json_payload.login_key) {
+    match helpers::is_logged_in(&json_payload.login_key) {
         Ok(value) => value,
+        Err(ApiError::InvalidLoginKey) => return HttpResponse::Unauthorized().json(json!(
+                {"status": "failed", "message": "You are not authenticated"})),
         Err(_) => return HttpResponse::InternalServerError().json(json!(
                 {"status": "failed", "message": "Internal server error"}))
     };
 
-    if !logged_in {
-        return HttpResponse::Unauthorized().json(json!(
-                {"status": "failed", "message": "Invalid login key"}));
-    }
-
     match helpers::validate_create_user_payload(&json_payload) {
         Ok(_) => (),
         Err(e) => return HttpResponse::BadRequest().json(json!(
-                {"status": "failed", "message": error::get_error_string(e)}))
+                {"status": "failed", "message": e.to_string()}))
     }
 
     // TODO: chech if user is allowed to create users
@@ -44,16 +43,18 @@ async fn create(json_payload: web::Json<CreateUserPayload>) -> impl Responder {
 async fn login(json_payload: web::Json<LoginPayload>) -> impl Responder {
 
 
-    let result = match helpers::check_credentials(&json_payload).await {
-        Ok(value) => value,
-        Err(_) => return HttpResponse::InternalServerError().json(json!(
-                {"status": "failed", "message": "Internal server error"}))
-    };
+    // let result = match helpers::check_credentials(&json_payload).await {
+    //     Ok(value) => value,
+    //     Err(_) => return HttpResponse::InternalServerError().json(json!(
+    //             {"status": "failed", "message": "Internal server error"}))
+    // };
 
     let dbuser = match helpers::check_credentials(&json_payload).await {
         Ok(value) => value,
-        Err(_) => return HttpResponse::Unauthorized().json(json!(
-                {"status": "failed", "message": "Incorrect username or password"}))
+        // Err(_) => return HttpResponse::Unauthorized().json(json!(
+        //         {"status": "failed", "message": "Incorrect username or password"}))
+        Err(_) => return HttpResponse::InternalServerError().json(json!(
+            {"status": "failed", "message": "Internal server error"}))
     };
 
     let user = User {
@@ -101,7 +102,7 @@ async fn logout(json_payload: web::Json<AuthKeyPayload>) -> impl Responder {
 
 #[get("/user/checkauth")]
 async fn checkauth(json_payload: web::Json<AuthKeyPayload>) -> impl Responder {
-    let mut users = match helpers::LOGGED_IN_USERS.lock() {
+    let users = match helpers::LOGGED_IN_USERS.lock() {
         Ok(guard) => guard,
         Err(_) => return HttpResponse::InternalServerError().json(json!(
                     {"status": "failed", "message": "Internal server error"}))

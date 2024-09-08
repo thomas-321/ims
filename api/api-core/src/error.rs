@@ -1,21 +1,30 @@
+#[derive(Debug, thiserror::Error)]
+#[error("unexpected null; try decoding as an `Option`")]
 pub enum ApiError {
+    #[error("User already exists")]
     UserAlreadyExists,
-    InvalidPassword,
-    InvalidLoginKey,
-    InvalidRole,
-    LoggedInUserLockFailed,
-    FirstnameTooShort,
-    LastnameTooShort,
-}
 
-pub fn get_error_string(error: ApiError) -> String {
-    match error {
-        ApiError::UserAlreadyExists => "User already exists".to_string(),
-        ApiError::InvalidPassword => "Invalid password".to_string(),
-        ApiError::InvalidLoginKey => "Invalid login key".to_string(),
-        ApiError::InvalidRole => "Invalid role".to_string(),
-        ApiError::FirstnameTooShort => "Firstname is too short".to_string(),
-        ApiError::LastnameTooShort => "Lastname is too short".to_string(),
-        ApiError::LoggedInUserLockFailed => "Failed to lock logged in users".to_string(),
-    }
+    #[error("Invalid password")]
+    InvalidPassword,
+
+    #[error("Invalid login key")]
+    InvalidLoginKey,
+
+    #[error("Invalid role")]
+    InvalidRole,
+
+    #[error("Failed to conect to the database")]
+    LoggedInUserLockFailed,
+
+    #[error("Firstname is too short")]
+    FirstnameTooShort,
+
+    #[error("Lastname is too short")]
+    LastnameTooShort,
+
+    #[error("Failed to conect to the database")]
+    DatabaseConnectionFailed,
+
+    #[error("Unknown error, catched all reached")]
+    UnknownError
 }

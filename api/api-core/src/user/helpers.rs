@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex, LazyLock};
 use rand::{Rng, thread_rng, distributions::Alphanumeric};
-use sqlx;
+use sqlx::Error;
 
 use api_models::user::model::{User, DBUser, LoginPayload, CreateUserPayload};
 use crate::database;
@@ -22,7 +22,7 @@ pub fn is_logged_in(login_key: &String) -> Result<bool, ApiError> {
         }
     }
 
-    return Ok(false);
+    return Err(ApiError::InvalidLoginKey);
 }
 
 pub fn validate_create_user_payload(payload: &CreateUserPayload) -> Result<(), ApiError> {
@@ -80,9 +80,22 @@ pub async fn check_credentials (json_payload: &LoginPayload) -> Result<DBUser, A
     .fetch_one(&*db)
     .await;
 
+    
+
     match result {
         Ok(user) => Ok(user),
-        Err(_) => Err(ApiError::InvalidPassword),
+        Err(Error::RowNotFound) => {
+            println!("Error: {:?}", ApiError::InvalidPassword.to_string());
+            Err(ApiError::InvalidPassword)
+        },
+        Err(Error::PoolTimedOut) => {
+            println!("Error: {:?}", ApiError::DatabaseConnectionFailed.to_string());
+            Err(ApiError::DatabaseConnectionFailed)
+        }
+        Err(_) => {
+            println!("Error: {:?}", ApiError::UnknownError.to_string());
+            Err(ApiError::UnknownError)
+        }
     }
 
 }
