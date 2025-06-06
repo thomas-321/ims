@@ -8,6 +8,7 @@ mod error;
 mod user;
 mod role;
 mod article;
+mod auth;
 
 #[get("/hello/{name}")]
 async fn greet(name: web::Path<String>) -> impl Responder {

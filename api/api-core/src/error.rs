@@ -32,7 +32,14 @@ pub enum ApiError {
     RolesLockFailed,
 
     #[error("Unknown error, catched all reached")]
-    UnknownError
+    UnknownError,
+
+    #[error("JWT token is invalid")]
+    JwtInvalid,
+
+    #[error("JWT token is expired")]
+    JwtExpired,
+
 }
 
 /// Value or Error to Responder:

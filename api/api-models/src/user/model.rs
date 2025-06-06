@@ -40,3 +40,11 @@ pub struct LoginPayload {
 pub struct AuthKeyPayload {
     pub login_key: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Claims {
+    pub sub: String,
+    pub roles: Vec<String>,
+    pub iat: i64,
+    pub exp: i64,
+}
