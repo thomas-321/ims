@@ -58,3 +58,6 @@ pub fn value_or_err_to_responder<T>(result: Result<T, ApiError>) -> Result<T, Ht
             {"status": "failed", "message": "Internal server error"})) )
     }
 }
+
+
+// impl Responder for ApiError {

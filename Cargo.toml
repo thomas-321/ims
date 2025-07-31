@@ -2,5 +2,5 @@
 members = [
     "api/api-core",
     "api/api-models",
-    "app",
+    "rustapp",
 ]
