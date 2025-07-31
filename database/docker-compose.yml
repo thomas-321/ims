@@ -1,16 +1,30 @@
-version: '3.9'
-
 services:
   mysql:
     image: mysql:8.0
     ports:
-      - 3306:3306
+      - 3309:3306
     volumes:
     #   - ~/apps/mysql:/var/lib/mysql # Uncomment this line to persist data
       - ./startup_queries:/docker-entrypoint-initdb.d
+      - ./sqldata:/var/lib/mysql
+    env_file:
+      - ../.env
     environment:
       - MYSQL_ROOT_USER=${DATABASE_ROOT_USER}
       - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
       - MYSQL_USER=${DATABASE_API_USER}
       - MYSQL_PASSWORD=${DATABASE_API_PASSWORD}
       - MYSQL_DATABASE=test
+    restart: unless-stopped
+
+  # postgres:
+  #   image: postgres:15
+  #   container_name: my-postgres
+  #   environment:
+  #     - POSTGRES_USER=${DATABASE_ROOT_USER}
+  #     - POSTGRES_PASSWORD=${DATABASE_ROOT_PASSWORD}
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #     - ./postgres-init:/docker-entrypoint-initdb.d
+  #   ports:
+  #     - "5432:5432"
